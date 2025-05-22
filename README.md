@@ -22,7 +22,7 @@ Copyright (C) 2025 NatTypeTester
   --version         Display version information.
 ```
 
-Avaible Stun server list according to https://github.com/HMBSbige/NatTypeTester/commit/65f15fddaf488a5b06080bd8a641a50a1a04407e
+Available Stun server list according to https://github.com/HMBSbige/NatTypeTester/commit/65f15fddaf488a5b06080bd8a641a50a1a04407e
 
 - stun.hot-chilli.net
 - stun.fitauto.ru
