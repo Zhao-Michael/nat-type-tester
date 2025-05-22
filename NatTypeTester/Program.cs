@@ -1,4 +1,4 @@
-﻿using CommandLine;
+using CommandLine;
 using Dns.Net.Clients;
 using Socks5.Models;
 using STUN;
@@ -17,6 +17,12 @@ public class Options
 
     [Option('p', "proxy", Default = null, Required = false, HelpText = "Socks5 Proxy.")]
     public string? ProxyServer { get; set; }
+
+    [Option('u', "user", Default = null, Required = false, HelpText = "Socks5 Proxy Username.")]
+    public string? ProxyUser { get; set; }
+
+    [Option('c', "password", Default = null, Required = false, HelpText = "Socks5 Proxy Password.")]
+    public string? ProxyPass { get; set; }
 }
 
 class Program
@@ -45,9 +51,9 @@ class Program
         };
 
         Console.WriteLine($"Testing NAT Type with {options.ProxyServer ?? "no proxy"}...");
-        await TestClassicNatTypeAsync(options.StunServer, options.ProxyServer, cts.Token);
+        await TestClassicNatTypeAsync(options.StunServer, options.ProxyServer, options.ProxyUser, options.ProxyPass, cts.Token);
     }
-    private static async Task TestClassicNatTypeAsync(string stunServer, string? proxyServer, CancellationToken token)
+    private static async Task TestClassicNatTypeAsync(string stunServer, string? proxyServer, string? proxyUser, string? proxyPass, CancellationToken token)
     {
         var DnsClient = new DefaultDnsClient();
 
@@ -60,7 +66,7 @@ class Program
         Socks5CreateOption socks5Option = new();
         if (proxyServer is not null)
         {
-            if (!HostnameEndpoint.TryParse(proxyServer, out HostnameEndpoint? proxyIpe))
+            if (!HostnameEndpoint.TryParse(proxyServer, out HostnameEndpoint? proxyIpe) || proxyIpe.Port == 0)
             {
                 throw new NotSupportedException(@"Unknown proxy address!");
             }
@@ -68,8 +74,8 @@ class Program
             socks5Option.Port = proxyIpe.Port;
             socks5Option.UsernamePassword = new UsernamePassword
             {
-                UserName = null,
-                Password = null,
+                UserName = proxyUser,
+                Password = proxyPass,
             };
         }
 
