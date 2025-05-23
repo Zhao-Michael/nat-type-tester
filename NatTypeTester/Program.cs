@@ -38,7 +38,6 @@ class Program
 
         if (options is null)
         {
-            Console.WriteLine("Wrong arguments!");
             return;
         }
 
