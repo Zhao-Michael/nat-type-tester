@@ -5,6 +5,6 @@ namespace STUN.Enums;
 /// </summary>
 public enum IpFamily : byte
 {
-	IPv4 = 0x01,
-	IPv6 = 0x02
+    IPv4 = 0x01,
+    IPv6 = 0x02
 }

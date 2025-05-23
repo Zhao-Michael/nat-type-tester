@@ -11,68 +11,68 @@ namespace STUN.Messages.StunAttributeValues;
 /// </summary>
 public abstract class AddressStunAttributeValue : IStunAttributeValue
 {
-	public IpFamily Family { get; set; }
+    public IpFamily Family { get; set; }
 
-	public ushort Port { get; set; }
+    public ushort Port { get; set; }
 
-	public IPAddress? Address { get; set; }
+    public IPAddress? Address { get; set; }
 
-	public virtual int WriteTo(Span<byte> buffer)
-	{
-		Verify.Operation(Address is not null, @"You should set Address info!");
+    public virtual int WriteTo(Span<byte> buffer)
+    {
+        Verify.Operation(Address is not null, @"You should set Address info!");
 
-		Requires.Range(buffer.Length >= 4 + 4, nameof(buffer));
+        Requires.Range(buffer.Length >= 4 + 4, nameof(buffer));
 
-		buffer[0] = 0;
-		buffer[1] = (byte)Family;
-		BinaryPrimitives.WriteUInt16BigEndian(buffer[2..], Port);
-		Requires.Range(Address.TryWriteBytes(buffer[4..], out int bytesWritten), nameof(buffer));
+        buffer[0] = 0;
+        buffer[1] = (byte)Family;
+        BinaryPrimitives.WriteUInt16BigEndian(buffer[2..], Port);
+        Requires.Range(Address.TryWriteBytes(buffer[4..], out int bytesWritten), nameof(buffer));
 
-		return 4 + bytesWritten;
-	}
+        return 4 + bytesWritten;
+    }
 
-	public virtual bool TryParse(ReadOnlySpan<byte> buffer)
-	{
-		int length = 4;
+    public virtual bool TryParse(ReadOnlySpan<byte> buffer)
+    {
+        int length = 4;
 
-		if (buffer.Length < length)
-		{
-			return false;
-		}
+        if (buffer.Length < length)
+        {
+            return false;
+        }
 
-		Family = (IpFamily)buffer[1];
+        Family = (IpFamily)buffer[1];
 
-		switch (Family)
-		{
-			case IpFamily.IPv4:
-				length += 4;
-				break;
-			case IpFamily.IPv6:
-				length += 16;
-				break;
-			default:
-				return false;
-		}
+        switch (Family)
+        {
+            case IpFamily.IPv4:
+                length += 4;
+                break;
+            case IpFamily.IPv6:
+                length += 16;
+                break;
+            default:
+                return false;
+        }
 
-		if (buffer.Length != length)
-		{
-			return false;
-		}
+        if (buffer.Length != length)
+        {
+            return false;
+        }
 
-		Port = BinaryPrimitives.ReadUInt16BigEndian(buffer[2..]);
+        Port = BinaryPrimitives.ReadUInt16BigEndian(buffer[2..]);
 
-		Address = new IPAddress(buffer[4..]);
+        Address = new IPAddress(buffer[4..]);
 
-		return true;
-	}
+        return true;
+    }
 
-	public override string? ToString()
-	{
-		return Address?.AddressFamily switch
-		{
-			AddressFamily.InterNetwork => $@"{Address}:{Port}",
-			AddressFamily.InterNetworkV6 => $@"[{Address}]:{Port}",
-			_ => base.ToString()
-		};
-	}
+    public override string? ToString()
+    {
+        return Address?.AddressFamily switch
+        {
+            AddressFamily.InterNetwork => $@"{Address}:{Port}",
+            AddressFamily.InterNetworkV6 => $@"[{Address}]:{Port}",
+            _ => base.ToString()
+        };
+    }
 }

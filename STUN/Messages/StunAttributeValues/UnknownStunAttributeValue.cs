@@ -9,37 +9,37 @@ namespace STUN.Messages.StunAttributeValues;
 /// </summary>
 public class UnknownStunAttributeValue : IStunAttributeValue
 {
-	public List<AttributeType> Types { get; } = new();
+    public List<AttributeType> Types { get; } = new();
 
-	public int WriteTo(Span<byte> buffer)
-	{
-		int size = Types.Count << 1;
-		Requires.Range(buffer.Length >= size, nameof(buffer));
+    public int WriteTo(Span<byte> buffer)
+    {
+        int size = Types.Count << 1;
+        Requires.Range(buffer.Length >= size, nameof(buffer));
 
-		foreach (AttributeType attributeType in Types)
-		{
-			BinaryPrimitives.WriteUInt16BigEndian(buffer, (ushort)attributeType);
-			buffer = buffer[sizeof(ushort)..];
-		}
+        foreach (AttributeType attributeType in Types)
+        {
+            BinaryPrimitives.WriteUInt16BigEndian(buffer, (ushort)attributeType);
+            buffer = buffer[sizeof(ushort)..];
+        }
 
-		return size;
-	}
+        return size;
+    }
 
-	public bool TryParse(ReadOnlySpan<byte> buffer)
-	{
-		if (buffer.Length < 2 || (buffer.Length & 1) == 1)
-		{
-			return false;
-		}
+    public bool TryParse(ReadOnlySpan<byte> buffer)
+    {
+        if (buffer.Length < 2 || (buffer.Length & 1) == 1)
+        {
+            return false;
+        }
 
-		Types.Clear();
-		while (!buffer.IsEmpty)
-		{
-			ushort type = BinaryPrimitives.ReadUInt16BigEndian(buffer);
-			Types.Add((AttributeType)type);
-			buffer = buffer[sizeof(ushort)..];
-		}
+        Types.Clear();
+        while (!buffer.IsEmpty)
+        {
+            ushort type = BinaryPrimitives.ReadUInt16BigEndian(buffer);
+            Types.Add((AttributeType)type);
+            buffer = buffer[sizeof(ushort)..];
+        }
 
-		return true;
-	}
+        return true;
+    }
 }

@@ -9,36 +9,36 @@ namespace STUN.Proxy;
 
 public class TlsProxy : DirectTcpProxy
 {
-	private SslStream? _tlsStream;
+    private SslStream? _tlsStream;
 
-	private readonly string _targetHost;
+    private readonly string _targetHost;
 
-	public TlsProxy(string targetHost)
-	{
-		_targetHost = targetHost;
-	}
+    public TlsProxy(string targetHost)
+    {
+        _targetHost = targetHost;
+    }
 
-	public override async ValueTask<IDuplexPipe> ConnectAsync(IPEndPoint local, IPEndPoint dst, CancellationToken cancellationToken = default)
-	{
-		Verify.NotDisposed(this);
-		Requires.NotNull(local, nameof(local));
-		Requires.NotNull(dst, nameof(dst));
+    public override async ValueTask<IDuplexPipe> ConnectAsync(IPEndPoint local, IPEndPoint dst, CancellationToken cancellationToken = default)
+    {
+        Verify.NotDisposed(this);
+        Requires.NotNull(local, nameof(local));
+        Requires.NotNull(dst, nameof(dst));
 
-		await CloseAsync(cancellationToken);
+        await CloseAsync(cancellationToken);
 
-		TcpClient = new TcpClient(local) { NoDelay = true };
-		await TcpClient.ConnectAsync(dst, cancellationToken);
+        TcpClient = new TcpClient(local) { NoDelay = true };
+        await TcpClient.ConnectAsync(dst, cancellationToken);
 
-		_tlsStream = new SslStream(TcpClient.GetStream(), true);
+        _tlsStream = new SslStream(TcpClient.GetStream(), true);
 
-		await _tlsStream.AuthenticateAsClientAsync(_targetHost);
+        await _tlsStream.AuthenticateAsClientAsync(_targetHost);
 
-		return _tlsStream.AsDuplexPipe();
-	}
+        return _tlsStream.AsDuplexPipe();
+    }
 
-	protected override void CloseClient()
-	{
-		_tlsStream?.Dispose();
-		base.CloseClient();
-	}
+    protected override void CloseClient()
+    {
+        _tlsStream?.Dispose();
+        base.CloseClient();
+    }
 }

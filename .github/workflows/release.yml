@@ -1,0 +1,66 @@
+name: Release
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  release:
+    permissions:
+      contents: write
+    strategy:
+      fail-fast: false
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+      - name: Set envs
+        run: |
+          VERSION=$(echo "${{ github.ref_name }}" | sed -e 's/^v//')
+          echo "PKG_VERSION=$VERSION" >> $GITHUB_ENV
+          echo "$PKG_VERSION"
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run dotnet format check
+        run: dotnet format -v diag --verify-no-changes
+
+      # - name: Run tests
+      #   run: dotnet test -c Release
+
+      - name: Build
+        run: |
+          dotnet build NatTypeTester --configuration Release --runtime win-x64 -p:Version=$PKG_VERSION
+          dotnet build NatTypeTester --configuration Release --runtime win-x86 -p:Version=$PKG_VERSION
+          dotnet build NatTypeTester --configuration Release --runtime linux-x64 -p:Version=$PKG_VERSION
+          dotnet build NatTypeTester --configuration Release --runtime linux-arm64 -p:Version=$PKG_VERSION
+          dotnet build NatTypeTester --configuration Release --runtime osx-x64 -p:Version=$PKG_VERSION
+          dotnet build NatTypeTester --configuration Release --runtime osx-arm64 -p:Version=$PKG_VERSION
+
+      - name: Archive
+        run: |
+          tar -C NatTypeTester/bin/Release/net8.0/linux-arm64/ -zcvf NatTypeTester-$PKG_VERSION-linux-arm64.tar.gz .
+          tar -C NatTypeTester/bin/Release/net8.0/linux-x64/ -zcvf NatTypeTester-$PKG_VERSION-linux-x64.tar.gz .
+          cd $GITHUB_WORKSPACE/NatTypeTester/bin/Release/net8.0/osx-arm64/ && zip -r $GITHUB_WORKSPACE/NatTypeTester-$PKG_VERSION-osx-arm64.zip .
+          cd $GITHUB_WORKSPACE/NatTypeTester/bin/Release/net8.0/osx-x64/ && zip -r $GITHUB_WORKSPACE/NatTypeTester-$PKG_VERSION-osx-x64.zip .
+          cd $GITHUB_WORKSPACE/NatTypeTester/bin/Release/net8.0/win-x64/ && zip -r $GITHUB_WORKSPACE/NatTypeTester-$PKG_VERSION-win-x64.zip .
+          cd $GITHUB_WORKSPACE/NatTypeTester/bin/Release/net8.0/win-x86/ && zip -r $GITHUB_WORKSPACE/NatTypeTester-$PKG_VERSION-win-x86.zip .
+          ls -lh $GITHUB_WORKSPACE/NatTypeTester-$PKG_VERSION-*
+
+      - name: Github Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: NatTypeTester v${{ env.PKG_VERSION }}
+          body: "Automated release for NatTypeTester v${{ env.PKG_VERSION }}"
+          files: |
+            ${{ github.workspace }}/NatTypeTester-*.tar.gz
+            ${{ github.workspace }}/NatTypeTester-*.zip
+          draft: false
+          prerelease: false
+          generate_release_notes: false
+          make_latest: true
+          token: ${{ secrets.GITHUB_TOKEN }}
