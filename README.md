@@ -1,6 +1,6 @@
 # NAT Type Tester
 
-This project is a console cli port of [NatTypeTester](https://github.com/HMBSbige/NatTypeTester). Current it only has RFC3489 implemented.
+This project is a console cli port of [NatTypeTester](https://github.com/HMBSbige/NatTypeTester) for all the platforms(Windows, Linux, MacOS). Current it only has RFC3489 implemented.
 
 ## Quick Start
 
