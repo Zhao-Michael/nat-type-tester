@@ -9,7 +9,7 @@ D:\projects\nat-type-tester>dotnet run --project NatTypeTester -- --help
 NatTypeTester 1.0.0+9522dac1a65800707197d80876975846e19738ab
 Copyright (C) 2025 NatTypeTester
 
-  -s, --stun        (Default: stun.fitauto.ru) Stun Server.
+  -s, --stun        (Default: stun.miwifi.com) Stun Server.
 
   -p, --proxy       Socks5 Proxy.
 
