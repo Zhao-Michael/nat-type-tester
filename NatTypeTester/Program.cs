@@ -12,7 +12,7 @@ namespace NatTypeTester;
 
 public class Options
 {
-    [Option('s', "stun", Default = "stun.fitauto.ru", Required = false, HelpText = "Stun Server.")]
+    [Option('s', "stun", Default = "stun.miwifi.com", Required = false, HelpText = "Stun Server.")]
     public string StunServer { get; set; } = string.Empty;
 
     [Option('p', "proxy", Default = null, Required = false, HelpText = "Socks5 Proxy.")]
